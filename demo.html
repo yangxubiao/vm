@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <div id ="app">
+         <div>
+            <ul>
+                <li>{{age}}</li>
+                <li>{{live}}</li>
+                <li>{{job}}</li>
+            </ul>
+         </div>
+        <p>
+            <input  type="text"  v-model="name" />
+        </p>
+       <div>
+            <input  type="text"  v-model="hobby" />
+       </div>
+    </div>
+
+    <script>
+
+
+
+
+var obj =  {name:"123",age:18,hobby:"羽毛球",live:"上海",job:"程序员"};
+
+Reflect.ownKeys(obj).forEach(property=>{
+    Object.defineProperty(obj,"_"+property,{
+          get:function(){
+              return obj[property];
+          },
+          set:function(val){
+              var elem = window.event.target;
+              var attr =  getAttrName(elem,"v-model")
+              obj[attr]=val;
+              console.log(obj)
+          }
+      })
+
+})
+
+var app = document.getElementById("app");
+//
+
+
+function AllElement(app){
+
+    var childs  =  app.children; 
+
+    if(childs.length>0){
+       for(var i  = 0 ; i <childs.length;i++){
+            if(childs[i].children.length>0){
+                checkAttr(childs[i])
+                AllElement(childs[i]) 
+            }else{
+                checkAttr(childs[i])
+            }
+       }
+    }
+}
+
+AllElement(app)
+
+
+//检查属性
+function checkAttr(elem){
+  
+     if(elem.hasAttribute('v-model')){
+       var attr =  getAttrName(elem,"v-model")
+        elem.value=getAttrValue(attr)
+        elem.oninput=function(){
+           obj["_"+attr]=elem.value;
+        }
+
+     }else if(elem.firstChild.nodeValue.indexOf("{{")>-1){
+           elem.firstChild.nodeValue=getAttrValue(cutGrammer(elem))
+     }
+}
+
+
+
+
+
+//切割插值语法获取值
+function cutGrammer(elem){
+    var str="";
+elem.firstChild.nodeValue.replace(/\{\{\w+\}\}/g,strCut=>{
+    str = strCut.substring(2,strCut.length-2)
+
+  })
+
+    return  str;
+}
+
+
+
+
+//根据属性名获取属性值
+function getAttrName(elem,Attr){
+    return   elem.getAttribute(Attr);
+}
+
+
+//根据属性返回相应的数据
+function  getAttrValue(attr){
+
+    return obj["_"+attr];
+}
+
+    </script>
+
+
+</body>
+</html>
